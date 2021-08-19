@@ -84,12 +84,14 @@ impl Game {
     fn draw_cells(&mut self, ctx: &mut Context) -> GameResult {
         let w = self.conf.board_size.x as usize;
         let h = self.conf.board_size.y as usize;
+        let mut mb = graphics::MeshBuilder::new();
+        let mut empty = true;
         for i in 0..h {
             for j in 0..w {
                 let cell = self.grid[i][j];
                 if cell.visible() {
-                    let rect = graphics::Mesh::new_rectangle(
-                        ctx,
+                    empty = false;
+                    mb.rectangle(
                         DrawMode::fill(),
                         Rect::new(
                             j as f32 * self.conf.cell_size,
@@ -99,9 +101,12 @@ impl Game {
                         ),
                         cell.color(),
                     )?;
-                    graphics::draw(ctx, &rect, DrawParam::default())?;
                 }
             }
+        }
+        if !empty {
+            let mesh = mb.build(ctx)?;
+            graphics::draw(ctx, &mesh, DrawParam::default())?;
         }
         Ok(())
     }
